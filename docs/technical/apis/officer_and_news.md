@@ -62,3 +62,26 @@
 
 **Auth:** authoring officer only (within assignment window)
 **Purpose:** Remove news post
+
+---
+
+### **6. Get Latest News**  
+`GET /api/v1/news/latest`  
+![GET](https://img.shields.io/badge/GET-2196F3?style=flat&labelColor=000)
+
+**Auth:** optional (signed-in by default)  
+**Purpose:** Retrieve the latest news posts.
+
+#### Response
+- Returns the **latest 5 non-archived news** items
+```
+[
+  {
+    "newsId": "...",
+    "title": "...",
+    "content": "...",
+    "headerImageUrl": "...",
+    "createdAt": "..."
+  }
+]
+```
