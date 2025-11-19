@@ -23,3 +23,18 @@
   }
 }
 ```
+
+### **2. Check if Both Fayda and Kebele IDs Are Uploaded**  
+`GET /api/v1/user/id/upload`  
+![GET](https://img.shields.io/badge/GET-2196F3?style=flat&labelColor=000)
+
+**Purpose:** Verify whether both ID documents (Fayda & Kebele) have been uploaded.
+
+**Auth:** Required
+
+#### Response — 200 OK (If both IDs exist)
+```json
+{
+  "success": true,
+  "message": "Both Fayda and Kebele IDs are uploaded."
+}
