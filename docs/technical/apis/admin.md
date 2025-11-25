@@ -13,7 +13,20 @@
 
 ---
 
-### **2. Assign User as Officer**  
+### **2. Search User**
+`GET /api/v1/admin/user`
+![GET](https://img.shields.io/badge/GET-2196F3?style=flat&labelColor=000)
+
+**Auth:** admin
+**Purpose:** Search user.
+
+#### Query Parameters
+`?name=|email=`
+
+#### Response
+- 5 users matching the query parameters 
+
+### **3. Assign User as Officer**  
 `POST /api/v1/admin/officers/assign`  
 ![POST](https://img.shields.io/badge/POST-4CAF50?style=flat&labelColor=000)
 
@@ -36,7 +49,7 @@
 
 ---
 
-### **3. Update Officer Metadata**
+### **4. Update Officer Metadata**
 
 `PUT /api/v1/admin/officers/:id`
 ![PUT](https://img.shields.io/badge/PUT-FFC107?style=flat\&labelColor=000)
@@ -46,7 +59,7 @@
 
 ---
 
-### **4. Get Officer Performance Metrics**
+### **5. Get Officer Performance Metrics**
 
 `GET /api/v1/admin/metrics/performance`
 ![GET](https://img.shields.io/badge/GET-2196F3?style=flat\&labelColor=000)
@@ -80,7 +93,7 @@
 
 ---
 
-### **5. Download Officer Performance Metrics**
+### **6. Download Officer Performance Metrics**
 
 `GET /api/v1/admin/metrics/performance/download`
 ![GET](https://img.shields.io/badge/GET-2196F3?style=flat\&labelColor=000)
@@ -98,7 +111,7 @@
 
 ---
 
-### **6. Get Security Logs**
+### **7. Get Security Logs**
 
 `GET /api/v1/admin/metrics/security`
 ![GET](https://img.shields.io/badge/GET-2196F3?style=flat\&labelColor=000)
@@ -113,10 +126,22 @@
 #### Response
 
 * JSON array of security log entries
+```json
+{
+  "reports": [
+    {
+      "timeOfAttempt": ,
+      "attemptType": ,
+      "count": ,
+      "officerName": 
+    }, 
+  ]
+}
+```
 
 ---
 
-### **7. Export Security Logs**
+### **8. Export Security Logs**
 
 `POST /api/v1/admin/metrics/security/export`
 ![POST](https://img.shields.io/badge/POST-4CAF50?style=flat\&labelColor=000)
