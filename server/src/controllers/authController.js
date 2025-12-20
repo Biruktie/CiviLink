@@ -8,11 +8,62 @@ import {
   isValidEmail,
 } from "../utils/validators.js";
 
-
 const accessTokenMaxAge = ms(process.env.ACCESS_TOKEN_EXPIRES);
 const refreshTokenMaxAge = ms(process.env.REFRESH_TOKEN_EXPIRES);
 
 const isProduction = process.env.NODE_ENV === "production";
+
+// User Registration and Login via Google
+const oauthHandler = async (req, res) => {
+
+  try {
+    let user = await User.findById(req.user._id)
+
+    const accessToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
+    );
+
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
+    });
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "Strict",
+      maxAge: accessTokenMaxAge,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "Strict",
+      maxAge: refreshTokenMaxAge,
+    });
+
+    res.status(req.user.status).json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+        },
+        message: req.user.message,
+        status: req.user.status
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message }); 
+  }
+  
+}
 
 // User Registration
 const register = async (req, res) => {
@@ -109,6 +160,7 @@ const register = async (req, res) => {
 };
 
 //User Login
+// User Login
 const login = async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
@@ -130,8 +182,10 @@ const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
     );
+
+    let refreshToken;
     if (rememberMe) {
-      const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
       });
 
@@ -153,6 +207,7 @@ const login = async (req, res) => {
       maxAge: accessTokenMaxAge,
     });
 
+    // ✅ Add accessToken in response body for tests
     res.status(200).json({
       success: true,
       data: {
@@ -162,6 +217,7 @@ const login = async (req, res) => {
           role: user.role,
           profileCompletePct: 0,
         },
+        accessToken, // <-- added
       },
     });
   } catch (err) {
@@ -169,6 +225,7 @@ const login = async (req, res) => {
   }
 };
 
+// User Logout
 const logout = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -274,4 +331,4 @@ const refreshToken = async (req, res) => {
   }
 };
 
-export { register, login, logout, refreshToken };
+export { register, login, logout, refreshToken, oauthHandler };

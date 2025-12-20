@@ -28,4 +28,6 @@ jobs:
 
       - name: Run frontend tests
         run: npm test
+        env:
+          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
         working-directory: ./client
