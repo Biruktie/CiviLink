@@ -36,7 +36,9 @@ const kebeleIdSchema = new mongoose.Schema({
         select: false,
         index: true
     }
-})
+},
+  { timestamps: true }
+);
 
 const KebeleId = mongoose.model("KebeleId", kebeleIdSchema);
 

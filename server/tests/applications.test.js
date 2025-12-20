@@ -17,6 +17,8 @@ import User from "../src/models/User.js";
 import Officer from '../src/models/Officer.js'
 import Application from "../src/models/Application.js";
 import UploadedID from "../src/models/UploadedID.js";
+import FaydaId from "../src/models/faydaIdSchema.js";
+import KebeleId from "../src/models/kebeleIdSchema.js";
 import bcrypt from "bcryptjs";
 
 jest.setTimeout(30000);
@@ -183,21 +185,44 @@ beforeAll(async () => {
 // Helper to create test IDs for user
 const createTestIDs = async (userId) => {
   // Clear any existing IDs
-  await UploadedID.deleteMany({ user: userId });
+  // await UploadedID.deleteMany({ user: userId });
+
+  await FaydaId.deleteOne({ userId });
+  await KebeleId.deleteOne({ userId });
 
   // Create both required IDs
-  await UploadedID.create([
-    {
-      user: userId,
-      type: "fayda",
-      imageUrl: "test/fayda-id.jpg",
-    },
-    {
-      user: userId,
-      type: "kebele",
-      imageUrl: "test/kebele-id.jpg",
-    },
-  ]);
+  // await UploadedID.create([
+  //   {
+  //     user: userId,
+  //     type: "fayda",
+  //     imageUrl: "test/fayda-id.jpg",
+  //   },
+  //   {
+  //     user: userId,
+  //     type: "kebele",
+  //     imageUrl: "test/kebele-id.jpg",
+  //   },
+  // ]);
+
+  // Create a Fayda ID record for the test user
+  await FaydaId.create({
+    userId: userId,
+    fullName: "Test User",
+    dateOfBirth: new Date("1990-01-01"),
+    sex: "M",
+    expiryDate: new Date("2030-12-31"),
+    fan: "FAN123456789"
+  });
+
+  // Create a Kebele ID record for the test user
+  await KebeleId.create({
+    userId: userId,
+    fullName: "Test User",
+    dateOfBirth: new Date("1990-01-01"),
+    sex: "F",
+    expiryDate: new Date("2030-12-31"),
+    idNumber: "KEB123456789"
+  });
 
   console.log("Test IDs created for user");
 };
@@ -232,7 +257,9 @@ afterAll(async () => {
     await User.deleteMany({});
     await Application.deleteMany({});
     await Officer.deleteMany({});
-    await UploadedID.deleteMany({});
+    // await UploadedID.deleteMany({});
+    await FaydaId.deleteMany({});
+    await KebeleId.deleteMany({});
     await mongoose.connection.close();
     console.log("✅ Database cleaned up");
   } catch (error) {

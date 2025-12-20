@@ -5,8 +5,14 @@ import FaydaId from "../models/faydaIdSchema.js";
 const checkIdsUploaded = async (req, res, next) => {
   const userId = req.user.id;
 
-  const hasFayda = FaydaId.findOne({ user: userId})
-  const hasKebele = KebeleId.findOne({ user: userId })
+  let hasFayda;
+  let hasKebele
+
+  const faydaId = FaydaId.findOne({ user: userId})
+  const kebeleId = KebeleId.findOne({ user: userId })
+
+  faydaId ? hasFayda = true : hasFayda = false;
+  kebeleId ? hasKebele = true : hasKebele = false;
 
   // const ids = await UploadedID.find({ user: userId });
   // const hasFayda = ids.some((id) => id.type === "fayda");
