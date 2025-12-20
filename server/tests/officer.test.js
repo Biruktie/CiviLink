@@ -25,7 +25,8 @@ import bcrypt from "bcryptjs";
 import app from "../src/index.js";
 import Officer from "../src/models/Officer.js";
 import Application from "../src/models/Application.js";
-import UploadedID from "../src/models/UploadedID.js";
+import FaydaId from "../src/models/faydaIdSchema.js";
+import KebeleId from "../src/models/kebeleIdSchema.js";
 import User from "../src/models/User.js";
 
 describe("Officer Routes 👮 (Cookie-Based Auth)", () => {
@@ -187,19 +188,38 @@ describe("Officer Routes 👮 (Cookie-Based Auth)", () => {
 
       const userId = registerRes.body.data.user.id;
 
-      await UploadedID.insertMany([
-        {
-          user: userId,
-          type: "fayda",
-          imageUrl: "test-fayda.jpg",
-        },
-        {
-          user: userId,
-          type: "kebele",
-          imageUrl: "test-kebele.jpg",
-        },
-      ]);
+      // await UploadedID.insertMany([
+      //   {
+      //     user: userId,
+      //     type: "fayda",
+      //     imageUrl: "test-fayda.jpg",
+      //   },
+      //   {
+      //     user: userId,
+      //     type: "kebele",
+      //     imageUrl: "test-kebele.jpg",
+      //   },
+      // ]);
 
+      // Create a Fayda ID record for the test user
+        await FaydaId.create({
+          userId: userId,
+          fullName: "Test User",
+          dateOfBirth: new Date("1990-01-01"),
+          sex: "M",
+          expiryDate: new Date("2030-12-31"),
+          fan: "FAN123456789"
+        });
+      
+        // Create a Kebele ID record for the test user
+        await KebeleId.create({
+          userId: userId,
+          fullName: "Test User",
+          dateOfBirth: new Date("1990-01-01"),
+          sex: "F",
+          expiryDate: new Date("2030-12-31"),
+          idNumber: "KEB123456789"
+        });
 
       expect(registerRes.status).toBe(201);
 

@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.js";
 import tinRoutes from "./routes/tin.js";
 import vitalRoutes from "./routes/vital.js";
 import officerRoutes from "./routes/officer.js";
+import idUploadRoutes from "./routes/idUpload.route.js"
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/tin", tinRoutes);
 app.use("/api/v1/vital", vitalRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/officer", officerRoutes);
+app.use("/api/v1/user/id", idUploadRoutes);
 
 // 404 handler
 app.use((req, res) => {
