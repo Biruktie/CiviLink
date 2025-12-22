@@ -12,6 +12,8 @@ import officerRoutes from "./routes/officer.js";
 import idUploadRoutes from "./routes/idUpload.route.js"
 import chatRoutes from "./routes/chat.js";
 
+import adminRoutes from "./routes/admin.js"
+
 const app = express();
 
 app.use(express.json());
@@ -29,6 +31,8 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/officer", officerRoutes);
 app.use("/api/v1/user/id", idUploadRoutes);
 app.use("/api/v1/chats", chatRoutes);
+
+app.use("/api/v1/admin", adminRoutes)
 
 // 404 handler
 app.use((req, res) => {
