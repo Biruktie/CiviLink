@@ -244,8 +244,6 @@ describe("Admin Routes (Cookie-Based Auth)", () => {
                     adminPassword: process.env.ADMIN_PASSWORD
                 });
 
-            console.log(res.body)
-
             expect(res.status).toBe(200)
             expect(res.body.success).toBe(true)
             expect(res.body.message).toBe("User successfully promoted to officer")
