@@ -168,8 +168,6 @@ describe("Admin Routes (Cookie-Based Auth)", () => {
                     adminPassword: "fakePassword",
                 });
 
-            console.log(res.body);
-
             expect(res.status).toBe(403)
             expect(res.body.success).toBe(false)
             expect(res.body.message).toBe("You are not authorized to access this resource")
@@ -245,6 +243,8 @@ describe("Admin Routes (Cookie-Based Auth)", () => {
                     subcity: "Bole",
                     adminPassword: process.env.ADMIN_PASSWORD
                 });
+
+            console.log(res.body)
 
             expect(res.status).toBe(200)
             expect(res.body.success).toBe(true)

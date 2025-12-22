@@ -1,7 +1,6 @@
 import User from "../models/User";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import Officer from "../models/Officer.js";
 import { promoteToOfficer } from "../services/assign_officer/assignOfficer.js";
 
 const searchUser = async (req, res) => {
@@ -110,31 +109,15 @@ const assignOfficer = async (req, res) => {
                 message: "User is not eligible for officer role"
             });
         }
-
-        // await User.findByIdAndUpdate(
-        //     user._id,
-        //     {
-        //         role: "officer",
-        //         department,
-        //         subcity
-        //     },
-        //     { runValidators: true }
-        // );
-
-        // const officer = await Officer.findById(user._id);
-
-        // return res.status(200).json({
-        //     success: true,
-        //     message: "User successfully promoted to officer",
-        //     data: officer
-        // });
-        
-        // In your controller
        
-        const officer = await promoteToOfficer(user._id, {
-            department,
-            subcity
-        });
+        const officer = await promoteToOfficer(
+            user._id, 
+            {
+                department,
+                subcity
+            },
+            req.user.id
+        );
         
         return res.status(200).json({
             success: true,

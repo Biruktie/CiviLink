@@ -24,6 +24,9 @@ const Officer = User.discriminator(
     subcity: {
       type: String,
       default: "unknown"
+    },
+    assignedBy: {
+      type: mongoose.Schema.Types.ObjectId
     }
   })
 );

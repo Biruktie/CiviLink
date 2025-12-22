@@ -2,7 +2,7 @@ import User from "../../models/User";
 import Officer from "../../models/Officer";
 import mongoose from "mongoose";
 
-const promoteToOfficer = async (userId, promotionData) => {
+const promoteToOfficer = async (userId, promotionData, adminId) => {
   // Get the user
   const user = await User.findById(userId);
   
@@ -23,6 +23,7 @@ const promoteToOfficer = async (userId, promotionData) => {
     role: 'officer',
     department: promotionData.department,
     subcity: promotionData.subcity || "unknown",
+    assignedBy: adminId
   });
   
   return officer;
