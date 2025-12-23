@@ -11,20 +11,22 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    environment: Server env
 
     # Job-level environment so every step sees the variables
     env:
-      ACCESS_TOKEN_EXPIRES: ${{ vars.ACCESS_TOKEN_EXPIRES }}        # or ${{ secrets.ACCESS_TOKEN_EXPIRES }}
+      ACCESS_TOKEN_EXPIRES: ${{ vars.ACCESS_TOKEN_EXPIRES }}        
       REFRESH_TOKEN_EXPIRES: ${{ vars.REFRESH_TOKEN_EXPIRES }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGO_URI: ${{ secrets.MONGO_URI }}
       PORT: ${{ vars.PORT }}
       ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      NODE_ENV: ${{ vars.NODE_ENV }}                                # set to "test"
-      clientID: ${{ secrets.CLIENTID }}                             # check exact names in code
+      NODE_ENV: ${{ vars.NODE_ENV }}
+      clientID: ${{ secrets.CLIENTID }}
       clientSecret: ${{ secrets.CLIENTSECRET }}
       TEST_DB_URI: ${{ vars.TEST_DB_URI }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
     steps:
       - name: Checkout repository
