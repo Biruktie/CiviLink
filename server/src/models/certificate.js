@@ -45,19 +45,7 @@ const certificateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Officer",
       required: true,
-    },
-
-    // Not sure whether to include this or not, but we can discuss about it.
-    // status: {
-    //   type: String,
-    //   enum: ["active", "revoked"],
-    //   default: "active",
-    // },
-
-    issuedAt: {
-      type: Date,
-      default: Date.now,
-    },
+    }
   },
   { timestamps: true }
 );
