@@ -165,9 +165,7 @@ const approveTinApplicatin = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "TIN application approved",
-      certificate,
-      application
+      message: "TIN application has been approved"
     });
   } catch (err) {
     console.error(err);
