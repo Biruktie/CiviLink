@@ -1,5 +1,6 @@
 import express from "express";
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
 import "../config/passport_setup.js";
 import connectDB from "../config/db.js";
 import cookieParser from "cookie-parser";
@@ -18,6 +19,7 @@ import idUploadRoutes from "./routes/idUpload.route.js";
 import chatRoutes from "./routes/chat.js";
 import paymentRoutes from "./routes/payment.js";
 import adminRoutes from "./routes/admin.js"
+import applicationRoutes from "./routes/applications.js";
 import healthRoutes from './routes/health.route.js';
 
 // Cron Jobs
@@ -42,6 +44,7 @@ app.use("/api/v1/user/id", idUploadRoutes);
 app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/applications", applicationRoutes);
 app.use("/api/v1/health", healthRoutes)
 
 // 404 handler
