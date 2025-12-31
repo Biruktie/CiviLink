@@ -17,7 +17,8 @@ import officerRoutes from "./routes/officer.js";
 import idUploadRoutes from "./routes/idUpload.route.js";
 import chatRoutes from "./routes/chat.js";
 import paymentRoutes from "./routes/payment.js";
-import adminRoutes from "./routes/admin.js"
+import adminRoutes from "./routes/admin.js";
+import securityRoutes from "./routes/metricsRoutes.js";
 
 // Cron Jobs
 import { startAnalyticsJob } from "./jobs/refreshOfficerAnalytics.job.js";
@@ -41,6 +42,7 @@ app.use("/api/v1/user/id", idUploadRoutes);
 app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/admin", securityRoutes);
 
 // 404 handler
 app.use((req, res) => {

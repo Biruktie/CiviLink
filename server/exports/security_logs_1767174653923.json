@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "6954f1fdbf87737b1f9c93f9",
+    "timeOfAttempt": "2025-12-31T09:50:53.895Z",
+    "attemptType": "LOGIN_SUCCESS",
+    "count": 1,
+    "officerName": "Officer Two",
+    "success": true,
+    "__v": 0
+  },
+  {
+    "_id": "6954f1fdbf87737b1f9c93f8",
+    "timeOfAttempt": "2025-12-31T09:50:53.895Z",
+    "attemptType": "LOGIN_FAILED",
+    "count": 3,
+    "officerName": "Officer One",
+    "success": false,
+    "__v": 0
+  }
+]
