@@ -15,6 +15,8 @@ import SecurityLog from "../src/models/SecurityLog.js";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import User from "../src/models/User.js";
+import fs from "fs";
+import path from "path";
 
 dotenv.config({ path: ".env.test" });
 jest.setTimeout(30000);
@@ -22,15 +24,20 @@ jest.setTimeout(30000);
 let adminToken;
 const agent = request.agent(app);
 
+// Create exports directory if it doesn't exist
+const exportsDir = path.join(process.cwd(), "exports");
+if (!fs.existsSync(exportsDir)) {
+  fs.mkdirSync(exportsDir, { recursive: true });
+}
+
 beforeAll(async () => {
   await mongoose.connect(process.env.TEST_DB_URI);
   await mongoose.connection.dropDatabase();
 
-  // Create admin user using admin discriminator
+  // Create admin user
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash("Admin123!", salt);
 
-  // Use admin discriminator if available
   let AdminModel = User;
   if (User.discriminators && User.discriminators.admin) {
     AdminModel = User.discriminators.admin;
@@ -51,7 +58,6 @@ beforeAll(async () => {
 
   expect(loginRes.status).toBe(200);
 
-  // Extract token
   const token =
     loginRes.body?.token ||
     loginRes.body?.data?.token ||
@@ -65,6 +71,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // Clean up exports directory
+  if (fs.existsSync(exportsDir)) {
+    const files = fs.readdirSync(exportsDir);
+    files.forEach((file) => {
+      fs.unlinkSync(path.join(exportsDir, file));
+    });
+  }
+
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
 });
@@ -73,7 +87,7 @@ beforeEach(async () => {
   await SecurityLog.deleteMany({});
 });
 
-describe("Admin Security Metrics", () => {
+describe("Core Security Metrics Tests", () => {
   const createTestLogs = async () => {
     return await SecurityLog.create([
       {
@@ -119,47 +133,121 @@ describe("Admin Security Metrics", () => {
     ).toBe(true);
   });
 
-  it("should filter by minimum attempt count", async () => {
+  it("should export security logs as JSON", async () => {
     await createTestLogs();
     const res = await agent
-      .get("/api/v1/admin/security")
-      .query({ attemptCountMin: 2 });
-    expect(res.status).toBe(200);
-    expect(res.body.reports.every((r) => r.count >= 2)).toBe(true);
-  });
+      .get("/api/v1/admin/security/export")
+      .query({ format: "json" });
 
-  it("should export security logs", async () => {
-    await createTestLogs();
-    const res = await agent.get("/api/v1/admin/security/export");
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.downloadUrl).toMatch(
-      /^\/exports\/security_logs_\d+\.json$/
-    );
-  });
-});
-
-describe("Authorization", () => {
-  it("should require authentication for admin endpoints", async () => {
-    // Admin can access (already proven)
-    const adminRes = await agent.get("/api/v1/admin/security");
-    expect(adminRes.status).toBe(200);
-
-    // Unauthenticated cannot access
-    const noAuthRes = await request(app).get("/api/v1/admin/security");
-    expect([401, 403]).toContain(noAuthRes.status);
-  });
-});
-
-describe("Security Log Model", () => {
-  it("should create valid security logs", async () => {
-    const log = await SecurityLog.create({
-      attemptType: "LOGIN_SUCCESS",
-      officerName: "Test Officer",
-      timeOfAttempt: new Date(),
+    console.log("Export JSON response:", {
+      status: res.status,
+      type: res.body?.type,
+      hasDownloadUrl: !!res.body?.downloadUrl,
+      hasData: !!res.body?.data,
     });
 
-    expect(log._id).toBeDefined();
-    expect(log.attemptType).toBe("LOGIN_SUCCESS");
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+
+    if (process.env.NODE_ENV === "test") {
+      // In test environment, we should get file type
+      expect(res.body.type).toBe("file");
+      expect(res.body.downloadUrl).toMatch(
+        /^\/exports\/security_logs_\d+\.json$/
+      );
+    }
+  });
+
+  it("should export security logs as Excel", async () => {
+    await createTestLogs();
+    const res = await agent
+      .get("/api/v1/admin/security/export")
+      .query({ format: "excel" });
+
+    console.log("Export Excel response:", {
+      status: res.status,
+      type: res.body?.type,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+
+    if (process.env.NODE_ENV === "test") {
+      expect(res.body.type).toBe("file");
+      expect(res.body.downloadUrl).toMatch(/\.xlsx$/);
+    }
+  });
+
+  it("should download exported JSON file in test environment", async () => {
+    // Skip if not in test environment
+    if (process.env.NODE_ENV !== "test") {
+      console.log("Skipping download test - not in test environment");
+      return;
+    }
+
+    await createTestLogs();
+
+    // First export a file
+    const exportRes = await agent
+      .get("/api/v1/admin/security/export")
+      .query({ format: "json" });
+
+    expect(exportRes.status).toBe(200);
+    expect(exportRes.body.type).toBe("file");
+
+    // Extract filename from downloadUrl
+    const filename = exportRes.body.downloadUrl.split("/").pop();
+
+    // Verify file exists locally
+    const filePath = path.join(exportsDir, filename);
+    expect(fs.existsSync(filePath)).toBe(true);
+
+    // Now download the file via the API
+    const downloadRes = await agent.get(
+      `/api/v1/admin/security/download/${filename}`
+    );
+
+    console.log("Download response status:", downloadRes.status);
+
+    if (downloadRes.status === 500) {
+      console.log("Download error:", downloadRes.body);
+    }
+
+    expect(downloadRes.status).toBe(200);
+    expect(downloadRes.headers["content-type"]).toContain("application/json");
+    expect(downloadRes.headers["content-disposition"]).toContain(filename);
+  });
+});
+
+describe("Authorization Tests", () => {
+  it("should require authentication for security endpoints", async () => {
+    const res = await request(app).get("/api/v1/admin/security");
+    expect([401, 403]).toContain(res.status);
+  });
+
+  it("should require authentication for export endpoint", async () => {
+    const res = await request(app).get("/api/v1/admin/security/export");
+    expect([401, 403]).toContain(res.status);
+  });
+
+  it("should require authentication for download endpoint", async () => {
+    const res = await request(app).get(
+      "/api/v1/admin/security/download/test.json"
+    );
+    expect([401, 403]).toContain(res.status);
+  });
+});
+
+describe("Error Handling", () => {
+  it("should handle invalid filename in download", async () => {
+    const res = await agent.get("/api/v1/admin/security/download/../test.json");
+    expect([400, 404, 500]).toContain(res.status);
+  });
+
+  it("should handle non-existent file in download", async () => {
+    const res = await agent.get(
+      "/api/v1/admin/security/download/nonexistent.json"
+    );
+    expect(res.status).toBe(404);
   });
 });

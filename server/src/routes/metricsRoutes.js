@@ -2,6 +2,7 @@ import express from "express";
 import {
   getSecurityLogs,
   exportSecurityLogsController,
+  downloadExportedFile,
 } from "../controllers/securityController";
 import { authorizeRoles } from "../middleware/authMiddleware";
 
@@ -12,6 +13,11 @@ router.get(
   "/security/export",
   authorizeRoles("admin"),
   exportSecurityLogsController
+);
+router.get(
+  "/security/download/:filename",
+  authorizeRoles("admin"),
+  downloadExportedFile
 );
 
 export default router;
